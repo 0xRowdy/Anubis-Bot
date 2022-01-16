@@ -1,0 +1,41 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bot:start": "nodemon ./index.js",
+    "hasura": "hasura --project hasura --skip-update-check",
+    "hasura:console": "npm run hasura console",
+    "hasura:apply": "npm run hasura migrate apply",
+    "hasura:metadata:export": "npm run hasura metadata export",
+    "hasura:metadata:apply": "npm run hasura metadata apply",
+    "hasura:actions-server:start": "nodemon ./hasura/hasura-actions-server.js",
+    "start": "node ./hasura/hasura-actions-server.js",
+    "hasura:staging:deploy": "npm run hasura:metadata:export && npm run hasura:staging:migrations:apply && npm run hasura:staging:metadata:apply",
+    "hasura:staging:migrations:apply": "hasura --project hasura --skip-update-check --envfile staging.env migrate apply",
+    "hasura:staging:metadata:apply": "hasura --project hasura --skip-update-check --envfile staging.env metadata apply"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "discord.js": "^13.3.1",
+    "dotenv": "^11.0.0",
+    "express": "^4.17.1",
+    "graphql-request": "^3.6.1",
+    "mongoose": "^6.1.6",
+    "node-fetch": "^2.6.6"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^4.1.0",
+    "hasura-cli": "^2.1.0-beta.1",
+    "nodemon": "^2.0.15",
+    "pm2": "^5.1.2",
+    "prettier": "2.4.1"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}

@@ -1,0 +1,7 @@
+# Dependency directories
+node_modules/
+
+config.json
+/hasura/staging.env
+/.idea
+.env
