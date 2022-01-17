@@ -1,5 +1,6 @@
 const { fetchQuiz, fetchLink } = require("../database/mongoose");
 const { MessageActionRow, MessageSelectMenu } = require("discord.js");
+const wait = require('util').promisify(setTimeout);
 
 module.exports = {
   name: "verifyquiz",
@@ -49,11 +50,15 @@ module.exports = {
           message.member.roles.remove(
             message.guild.roles.cache.find((r) => r.name === "Unverified")
           );
-          message.channel.send({
+          await message.channel.send({
             content: `Perfect, you now have access to the channels! Also, have this POAP! ${await fetchLink(
               quiz.name
             )}`,
           });
+          await wait(2500);
+          await message.channel.send("You have five minutes until this channel is deleted; so claim quick!");
+          await wait(300000);
+          await message.channel.delete();
         } else {
           message.channel.send({
             content: `Whoops! You answered ${

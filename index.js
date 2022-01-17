@@ -54,7 +54,7 @@ client.on("guildMemberAdd", async (member) => {
   member.roles.add(
     member.guild.roles.cache.find((r) => r.name === "Unverified")
   );
-  const verifyChannelName = `${member.user.username}s-verification-quiz-channel`;
+  const verifyChannelName = `${member.user.username}s-verification`;
   await member.guild.channels.create(verifyChannelName, {
     type: "GUILD_TEXT",
     permissionOverwrites: [
@@ -73,8 +73,6 @@ client.on("guildMemberAdd", async (member) => {
     .send(
       `Welcome <@${member.user.id}>! Please respond to Anubis and to complete verification`
     );
-
-  // function to conduct the onboarding quiz. will need to moved somewhere else later
 
   await member.guild.channels.cache
     .find((channel) => channel.name === verifyChannelName)
@@ -101,7 +99,7 @@ client.on("message", async (message) => {
   }
 
   if (command === "verify") {
-    if(message.member.guild.roles.cache.find(r => r.name !== "Unverified")) return
+    if(!message.member.roles.cache.find(r => r.name === "Unverified")) return
     client.commands.get("verifyquiz").execute(client, message);
   }
 
