@@ -68,7 +68,6 @@ module.exports = {
                     try {
                         msg.channel.send('Reading the file! Fetching data...')
 
-                        // fetch the file from the external URL
                         const response = await fetch(file)
 
                         if (!response.ok) {
