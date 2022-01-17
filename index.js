@@ -1,10 +1,4 @@
-const {
-  Client,
-  Collection,
-  Intents,
-  MessageActionRow,
-  MessageSelectMenu,
-} = require("discord.js");
+const { Client, Collection, Intents } = require("discord.js");
 const mongoose = require("mongoose");
 const fs = require("fs");
 require("dotenv").config();
@@ -12,7 +6,11 @@ const { prefix, token } = require("./config.json");
 
 // adding to client
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MEMBERS,
+  ],
 });
 client.commands = new Collection();
 
@@ -36,7 +34,7 @@ const init = () => {
   client.login(token);
 };
 
-//event handling 
+//event handling
 client.once("ready", () => {
   console.log("The client is ready!");
 });
@@ -50,6 +48,37 @@ client.on("interactionCreate", async (interaction) => {
       components: [],
     });
   }
+});
+
+client.on("guildMemberAdd", async (member) => {
+  member.roles.add(
+    member.guild.roles.cache.find((r) => r.name === "Unverified")
+  );
+  const verifyChannelName = `${member.user.username}s-verification-quiz-channel`;
+  await member.guild.channels.create(verifyChannelName, {
+    type: "GUILD_TEXT",
+    permissionOverwrites: [
+      {
+        id: member.user.id,
+        allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "READ_MESSAGE_HISTORY"],
+      },
+      {
+        id: member.guild.roles.everyone,
+        deny: ["VIEW_CHANNEL", "SEND_MESSAGES", "READ_MESSAGE_HISTORY"],
+      },
+    ],
+  });
+  await member.guild.channels.cache
+    .get("932128244700942386")
+    .send(
+      `Welcome <@${member.user.id}>! Please respond to Anubis and to complete verification`
+    );
+
+  // function to conduct the onboarding quiz. will need to moved somewhere else later
+
+  await member.guild.channels.cache
+    .find((channel) => channel.name === verifyChannelName)
+    .send("Type '!verify' to initiate the test")
 });
 
 // command handling
@@ -69,6 +98,11 @@ client.on("message", async (message) => {
 
   if (command === "takequiz") {
     client.commands.get("takequiz").execute(client, message);
+  }
+
+  if (command === "verify") {
+    if(message.member.guild.roles.cache.find(r => r.name !== "Unverified")) return
+    client.commands.get("verifyquiz").execute(client, message);
   }
 
   // test commands

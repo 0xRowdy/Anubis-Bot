@@ -2,30 +2,18 @@ const { fetchQuiz, fetchLink } = require("../database/mongoose");
 const { MessageActionRow, MessageSelectMenu } = require("discord.js");
 
 module.exports = {
-  name: "takequiz",
-  async execute(client, message) {
+  name: "verifyquiz",
+  async execute(client, message, args) {
     try {
       let index = 0;
       let correct = 0;
-  
-      const quiz = await message.channel
-        .send("What's the name of the quiz you want to take?")
-        .then(() => {
-          return message.channel.awaitMessages({
-            max: 1,
-            time: 30000,
-            errors: ["time"],
-          });
-        })
-        .then(async (collected) => {
-          collected = collected.first().content.toLowerCase();
-            return await fetchQuiz(collected);
-        });
-  
+
+      const quiz = await fetchQuiz(process.env.VERIFY_QUIZ_NAME);
+
       const questions = quiz?.questions.map((question) => {
         return question.description;
       });
-  
+
       const rows = quiz?.questions.map((question) => {
         const answers = question.answers.map((answer, i) => {
           return {
@@ -41,28 +29,40 @@ module.exports = {
             .addOptions(answers)
         );
       });
-  
+
       const collector = message.channel.createMessageComponentCollector({
         max: rows.length,
       });
-  
+
       collector.on("collect", (collected) => {
         const answer = collected.values[0];
         answer.includes("true") && correct++;
         index++;
         sendQuestion();
       });
-  
+
       collector.on("end", async () => {
-        correct === rows.length
-          ? message.channel.send({
-              content: `Perfect! Have this POAP! ${await fetchLink(quiz.name)}`,
-            })
-          : message.channel.send({
-              content: "Whoops! You answered a few wrong. Try again!",
-            });
+        if (correct === rows.length) {
+          message.member.roles.add(
+            message.guild.roles.cache.find((r) => r.name === "Verified")
+          );
+          message.member.roles.remove(
+            message.guild.roles.cache.find((r) => r.name === "Unverified")
+          );
+          message.channel.send({
+            content: `Perfect, you now have access to the channels! Also, have this POAP! ${await fetchLink(
+              quiz.name
+            )}`,
+          });
+        } else {
+          message.channel.send({
+            content: `Whoops! You answered ${
+              rows.length - correct
+            } wrong. Try again using the "!verify" command.`,
+          });
+        }
       });
-  
+
       const sendQuestion = () => {
         index < rows.length &&
           message.channel.send({
@@ -72,8 +72,8 @@ module.exports = {
       };
       sendQuestion();
     } catch (err) {
-      console.log(err)
-      message.channel.send(err)
+      console.log(err);
+      message.channel.send(err);
     }
   },
 };

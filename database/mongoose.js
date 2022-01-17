@@ -3,6 +3,7 @@ const Quiz = require("./schema/quiz");
 // to fetch quiz
 const fetchQuiz = async function (data) {
   const quiz = await Quiz.findOne({ name: data });
+  if(!quiz) throw "Quiz not found! Please try again."
   return quiz
 };
 
