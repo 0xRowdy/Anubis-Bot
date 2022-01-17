@@ -11,7 +11,6 @@ module.exports = {
         const filter = (msg) => !msg.author.bot
 
         function addLinks(quiz) {
-            // get the file's URL
             msg.channel
                 .send('Please send .txt file containing POAP links.')
                 .then(() => {
@@ -29,10 +28,8 @@ module.exports = {
                     try {
                         msg.channel.send('Reading the file! Fetching data...')
 
-                        // fetch the file from the external URL
                         const response = await fetch(file)
 
-                        // if there was an error send a message with the status
                         if (!response.ok) {
                             return msg.channel.send(
                                 'There was an error with fetching the file:',
@@ -65,7 +62,6 @@ module.exports = {
                     })
                 })
                 .then(async (collected) => {
-                    // get the file's URL
                     const file = collected.first().attachments.first()?.url
                     if (!file) return console.log('No attached file found')
 
@@ -75,7 +71,6 @@ module.exports = {
                         // fetch the file from the external URL
                         const response = await fetch(file)
 
-                        // if there was an error send a message with the status
                         if (!response.ok) {
                             return msg.channel.send(
                                 'There was an error with fetching the file:',
@@ -83,7 +78,6 @@ module.exports = {
                             )
                         }
 
-                        // take the response stream and read it to completion
                         const text = await response.text()
 
                         if (text) {
